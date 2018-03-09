@@ -15,7 +15,7 @@ pipeline {
         branch 'master'
       }
       steps {
-        withDockerRegistry([ credentialsId: "2d96e761-3947-42c5-8c28-b1248dd17bf7", url: "hub.docker.com" ]) {
+        withDockerRegistry([ credentialsId: "2d96e761-3947-42c5-8c28-b1248dd17bf7", url: "https://hub.docker.com" ]) {
           sh 'docker push asadz31/hello-my-alpine:latest'
           #sh 'docker push brightbox/cli:latest'
         }
