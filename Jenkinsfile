@@ -6,7 +6,7 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh 'docker build -f "hello-my-alpine" -t aasadz31/hello-my-alpine:latest .'
+        sh 'docker build -f "hello-my-alpine" -t node:latest .'
         println "building done."
       }
     }
