@@ -3,11 +3,14 @@ pipeline {
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))
   }
+  triggers {
+    cron('@daily')
+  }
   stages {
     stage('Build') {
       steps {
-        sh 'docker build -f "hello-my-alpine" -t node:latest .'
-        println "building done."
+        sh 'docker build -f "Dockerfile-alpine" -t asadz31/alpine:latest .'
+        # sh 'docker build -f "Dockerfile-cli" -t asadz31/cli:latest .'
       }
     }
     stage('Publish') {
@@ -15,9 +18,9 @@ pipeline {
         branch 'master'
       }
       steps {
-        withDockerRegistry([credentialsId: "2d96e761-3947-42c5-8c28-b1248dd17bf7", url: ""]) {
-          sh 'docker push asadz31/hello-my-alpine:latest'
-          println "done push."
+        withDockerRegistry([ credentialsId: "2d96e761-3947-42c5-8c28-b1248dd17bf7", url: "" ]) {
+          sh 'docker push asadz31/alpine:latest'
+          # sh 'docker push asadz31/cli:latest'
         }
       }
     }
