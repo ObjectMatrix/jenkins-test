@@ -1,30 +1,36 @@
-pipeline {
-  agent { label 'docker' }
-  options {
-    buildDiscarder(logRotator(numToKeepStr: '5'))
-  }
-  triggers {
-    cron('@daily')
-  }
-  stages {
-    stage('Build') {
-      steps {
-        sh 'docker build -f "Dockerfile" -t asadz31/alpine:latest .'.'
-        print 'build completed stage'
-      }
+node {
+    def app
+
+    stage('Clone repository') {
+        /* Let's make sure we have the repository cloned to our workspace */
+
+        checkout scm
     }
 
-    stage('Publish') {
-        when {
-          branch 'master'
+    stage('Build image') {
+        /* This builds the actual image; synonymous to
+         * docker build on the command line */
+
+        app = docker.build("getintodevops/hellonode")
+    }
+
+    stage('Test image') {
+        /* Ideally, we would run a test framework against our image.
+         * For this example, we're using a Volkswagen-type approach ;-) */
+
+        app.inside {
+            sh 'echo "Tests passed"'
         }
-        steps {
-          withDockerRegistry([credentialsId: "2d96e761-3947-42c5-8c28-b1248dd17bf7", url: ""]) {
-            sh 'docker push asadz31/alpine:latest'
-            # sh 'docker push asadz31/cli:latest'
-            print 'push to docker registry'
-          }
+    }
+
+    stage('Push image') {
+        /* Finally, we'll push the image with two tags:
+         * First, the incremental build number from Jenkins
+         * Second, the 'latest' tag.
+         * Pushing multiple tags is cheap, as all the layers are reused. */
+        docker.withRegistry('https://registry.hub.docker.com', '2d96e761-3947-42c5-8c28-b1248dd17bf7') {
+            app.push("${env.BUILD_NUMBER}")
+            app.push("latest")
         }
-      }
     }
 }
